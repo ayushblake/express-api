@@ -5,8 +5,12 @@ const db = require('../database.js')
 //Get All
 router.get('/', async (req, res) => {
     try {
-        const subscribers = await db.promise().query('SELECT * FROM SUBSCRIBERS')
-        res.status(200).json(subscribers) //use res.send() if sending non-json content in response
+        // const subscribers = await db.promise().query('SELECT * FROM SUBSCRIBERS')
+        // res.status(200).json(subscribers)
+        //use res.send() if sending non-json content in response 
+        //use res.sendStatus(500) in order to just send the status code in response
+        //use res.download(filePath) in order to send a downloadable file as response
+        res.render('main', { text: "Jack" }) //use this to send and html page(a view) in response //to send a view back in response we require a view engine like ejs,pug. We can also send data from this js file to the html/ejs file we send in response
     }
     catch (err) {
         res.status(500).json({ message: err.message })
@@ -89,6 +93,38 @@ async function getSubscriberById(req, res, next) {
     res.fetchedSubscriber = requestedSubscriber
     next()
 }
+
+//This(router.param()) is a middleware which runs for all endpoints having a param 'Id' in our case //This middleware runs before the actual implementation hence we are required to call next() in order to function the endpoint correctly
+router.param('Id', (req, res, next, id) => {
+    console.log(id)
+    next()
+})
+
+//We can write in this way if the endpoint/params etc. is same for all these endpoints(Just a compact way to write - by chaining the different request types)
+router.route('/:Id')
+    .get((req, res) => {
+        res.json(res.fetchedSubscriber)
+    })
+    .put(async (req, res) => {
+
+        const { name, subscribedStatus } = req.body
+        try {
+            await db.promise().query(`UPDATE SUBSCRIBER SET NAME ='${name}' AND SUBSCRIBEDSTATUS ='${subscribedStatus}' WHERE ID ='${req.params.Id}'`)
+            res.status(200).json({ message: "Updated Subscriber" })
+        }
+        catch (err) {
+            res.status(400).json({ message: err.message })
+        }
+    })
+    .delete(async (req, res) => {
+        try {
+            await db.promise().query(`DELETE FROM SUBSCRIBER WHERE ID ='${req.params.Id}'`)
+            res.status(200).json({ message: "Deleted Successfully" })
+        }
+        catch (err) {
+            res.status(500).json({ message: err.message })
+        }
+    })
 
 
 module.exports = router

@@ -12,12 +12,19 @@ app.use((req, res, next) => {
     next()
 })
 
+//This is a setting we need to set in order to use a view engine(ejs in our case)
+app.set('view engine', 'ejs')
+
+//If error connecting to database
 db.on('error', () => console.log("Error Connecting To Database"))
+
 //Checks if database is connected successfully or not
 db.once('open', () => console.log("Successfully Connected To Database"))
+
 //Here we have a used a router just as a good practise, so that we can divide our app to use different routers for different url params(like /subscriber, /user, /matches, etc..)
 // Incase of a small app instead of dividing the app into different routers we can directly use: app.get('/',(req,res) => {})    **NOTE** This is not a good practise(Always try and use routers)
 const subscribersRouter = require('./Routers/subscribersRouter')
+//All routes starting with /subscriber will be routed to this router 
 app.use('/subscriber', subscribersRouter)
 
 app.listen(process.env.PORT, () => { console.log("Server Started") })
