@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router()
 const db = require('../database.js')
 
+//works just like app.use()
+// router.use(getSubscriberById) (This will be a middleware and will run before each endpoints actual functionality)
+
 //Get All
 router.get('/', async (req, res) => {
     try {
@@ -10,7 +13,7 @@ router.get('/', async (req, res) => {
         //use res.send() if sending non-json content in response 
         //use res.sendStatus(500) in order to just send the status code in response
         //use res.download(filePath) in order to send a downloadable file as response
-        res.render('main', { text: "Jack" }) //use this to send and html page(a view) in response //to send a view back in response we require a view engine like ejs,pug. We can also send data from this js file to the html/ejs file we send in response
+        res.render('main', { text: "Jack" }) //use this to send and html page(a view) in response //to send a view back in response we require a view engine like ejs(looks similar to html),pug. We can also send data from this js file to the html/ejs file we send in response
     }
     catch (err) {
         res.status(500).json({ message: err.message })
@@ -25,6 +28,7 @@ router.get('/:Id', getSubscriberById, (req, res) => {
 //Create new record
 router.post('/', async (req, res) => {
     const { name, subscribedStatus } = req.body
+    // const nameQueryParameter = req.query.name (use this to access query parameters (Eg: - ?name=Ayush))
     try {
         await db.promise().query(`INSERT INTO SUBSCRIBER VALUES('${name}','${subscribedStatus}')`)
         res.status(201).json({ message: "Created Subsciber" }) //201 status means - successfully created record
